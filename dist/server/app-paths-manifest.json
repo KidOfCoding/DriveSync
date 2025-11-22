@@ -1,3 +1,12 @@
 {
-  "/page": "app/page.js"
+  "/_not-found": "app/_not-found.js",
+  "/page": "app/page.js",
+  "/select-role/page": "app/select-role/page.js",
+  "/api/get-user/route": "app/api/get-user/route.js",
+  "/driver/complete-profile/page": "app/driver/complete-profile/page.js",
+  "/api/sync-user/route": "app/api/sync-user/route.js",
+  "/sign-up/[[...sign-up]]/page": "app/sign-up/[[...sign-up]]/page.js",
+  "/sign-in/[[...sign-in]]/page": "app/sign-in/[[...sign-in]]/page.js",
+  "/owner/complete-profile/page": "app/owner/complete-profile/page.js",
+  "/api/imagekit/upload/route": "app/api/imagekit/upload/route.js"
 }

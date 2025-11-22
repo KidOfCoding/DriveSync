@@ -36,8 +36,8 @@ export default function SignUpPage() {
   }
 
   // After sign-up, redirect back to profile completion with verified flag
-  const afterSignUpUrl = selectedRole === 'driver' 
-    ? '/driver/complete-profile?verified=true' 
+  const afterSignUpUrl = selectedRole === 'driver'
+    ? '/driver/complete-profile?verified=true'
     : '/owner/complete-profile?verified=true';
 
   return (
@@ -76,7 +76,7 @@ export default function SignUpPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <SignUp 
+            <SignUp
               appearance={{
                 elements: {
                   rootBox: "mx-auto",
@@ -92,8 +92,8 @@ export default function SignUpPage() {
               path="/sign-up"
               signInUrl="/sign-in"
               afterSignUpUrl={afterSignUpUrl}
-              // Only show Google OAuth
-              forceRedirectUrl={afterSignUpUrl}
+            // Only show Google OAuth
+
             />
           </CardContent>
         </Card>
