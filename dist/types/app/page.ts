@@ -1,4 +1,4 @@
-// File: /home/project/app/page.tsx
+// File: C:\Users\newak\Downloads\real-time_ride-sharing_web_application_z1mf6u\app\page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
