@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/auth-provider';
 import { UserMenu } from '@/components/auth/user-menu';
 import { Button } from '@/components/ui/button';
+import { ModeToggle } from '@/components/mode-toggle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -277,6 +278,7 @@ export default function Home() {
             <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">About</Link>
           </nav>
           <div className="flex items-center gap-4">
+            <ModeToggle />
             {isSignedIn ? (
               <UserMenu />
             ) : (
