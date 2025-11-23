@@ -211,14 +211,14 @@ return (
             </div>
 
             <div id="recaptcha-container"></div>
-            {cooldownEnd && cooldownEnd > Date.now() && (
+            {(cooldownEnd ?? 0) > Date.now() && (
                 <p className="text-xs text-muted-foreground">Resend available in {cooldownLeft}s</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading || (cooldownEnd && cooldownEnd > Date.now())}>
+            <Button type="submit" className="w-full" disabled={isLoading || ((cooldownEnd ?? 0) > Date.now())}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {cooldownEnd && cooldownEnd > Date.now() ? 'Resend Disabled' : 'Send Code'}
-                {!isLoading && !(cooldownEnd && cooldownEnd > Date.now()) && <ArrowRight className="ml-2 h-4 w-4" />}
+                {(cooldownEnd ?? 0) > Date.now() ? 'Resend Disabled' : 'Send Code'}
+                {!isLoading && !((cooldownEnd ?? 0) > Date.now()) && <ArrowRight className="ml-2 h-4 w-4" />}
             </Button>
 
             <Button
