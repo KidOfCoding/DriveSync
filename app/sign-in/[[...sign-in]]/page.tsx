@@ -6,7 +6,7 @@ import { useAuth } from '@/components/auth/auth-provider';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Car, Building2, ArrowLeft, Phone } from 'lucide-react';
+import { Car, Building2, ArrowLeft, Phone, Mail } from 'lucide-react';
 import { PhoneSignIn } from '@/components/auth/phone-sign-in';
 
 export default function SignInPage() {
@@ -91,6 +91,7 @@ export default function SignInPage() {
                   className="w-full h-12"
                   onClick={() => setView('email')}
                 >
+                  <Mail className="mr-2 h-5 w-5" />
                   Email or Google
                 </Button>
               </div>

@@ -22,6 +22,9 @@ export interface UserProfile {
   businessDescription?: string;
   createdAt?: string;
   updatedAt?: string;
+  age?: string;
+  vehicleType?: string;
+  otherVehicleType?: string;
 }
 
 // Save to localStorage (always works)

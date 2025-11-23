@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, Loader2, ArrowLeft } from 'lucide-react';
 import { uploadImageClient } from '@/lib/imagekit-client';
@@ -23,7 +24,7 @@ export default function CompleteOwnerProfile() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const isVerified = searchParams.get('verified') === 'true';
-  
+
   // Load pending profile data if user just verified
   const [formData, setFormData] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -38,6 +39,8 @@ export default function CompleteOwnerProfile() {
           businessType: data.businessType || '',
           businessAddress: data.businessAddress || '',
           businessDescription: data.businessDescription || '',
+          gender: data.gender || 'male',
+          age: data.age || '',
         };
       }
     }
@@ -49,6 +52,8 @@ export default function CompleteOwnerProfile() {
       businessType: '',
       businessAddress: '',
       businessDescription: '',
+      gender: 'male',
+      age: '',
     };
   });
 
@@ -101,9 +106,6 @@ export default function CompleteOwnerProfile() {
 
     setLoading(true);
     try {
-      // Save to Clerk metadata
-      // Clerk user.update removed - using Firebase
-
       // Save to Appwrite/localStorage
       const finalProfileData = {
         userId: user.uid,
@@ -116,6 +118,8 @@ export default function CompleteOwnerProfile() {
         businessAddress: profileData.businessAddress,
         businessType: profileData.businessType,
         businessDescription: profileData.businessDescription,
+        gender: profileData.gender,
+        age: profileData.age,
         profileCompleted: true,
       };
 
@@ -129,7 +133,7 @@ export default function CompleteOwnerProfile() {
         description: 'Your owner profile has been created successfully',
       });
 
-      router.push('/');
+      router.push('/profile');
     } catch (error) {
       toast({
         title: 'Error',
@@ -143,7 +147,7 @@ export default function CompleteOwnerProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.phone || !formData.businessName || !formData.businessAddress) {
       toast({
         title: 'Missing information',
@@ -157,8 +161,6 @@ export default function CompleteOwnerProfile() {
     if (isSignedIn && user?.uid) {
       setLoading(true);
       try {
-        // Clerk user.update removed - using Firebase
-
         const profileData = {
           userId: user.uid,
           role: 'owner' as const,
@@ -170,6 +172,8 @@ export default function CompleteOwnerProfile() {
           businessAddress: formData.businessAddress,
           businessType: formData.businessType,
           businessDescription: formData.businessDescription,
+          gender: formData.gender,
+          age: formData.age,
           profileCompleted: true,
         };
 
@@ -180,7 +184,7 @@ export default function CompleteOwnerProfile() {
           description: 'Your owner profile has been created successfully',
         });
 
-        router.push('/');
+        router.push('/profile');
       } catch (error) {
         toast({
           title: 'Error',
@@ -202,6 +206,8 @@ export default function CompleteOwnerProfile() {
       businessAddress: formData.businessAddress,
       businessType: formData.businessType,
       businessDescription: formData.businessDescription,
+      gender: formData.gender,
+      age: formData.age,
       role: 'owner',
     };
 
@@ -228,7 +234,7 @@ export default function CompleteOwnerProfile() {
           <CardHeader>
             <CardTitle>Complete Your Owner Profile</CardTitle>
             <CardDescription>
-              {isSignedIn 
+              {isSignedIn
                 ? 'Please provide the following information to complete your owner profile'
                 : 'Fill in your details below. You will be asked to verify your identity with Google after submitting.'}
             </CardDescription>
@@ -272,6 +278,42 @@ export default function CompleteOwnerProfile() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
+                />
+              </div>
+
+              {/* Gender */}
+              <div className="space-y-2">
+                <Label>Gender *</Label>
+                <RadioGroup
+                  value={formData.gender}
+                  onValueChange={(value) => setFormData({ ...formData, gender: value })}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="male" id="male" />
+                    <Label htmlFor="male">Male</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="female" id="female" />
+                    <Label htmlFor="female">Female</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="other" id="other" />
+                    <Label htmlFor="other">Other</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Age */}
+              <div className="space-y-2">
+                <Label htmlFor="age">Age *</Label>
+                <Input
+                  id="age"
+                  type="number"
+                  value={formData.age}
+                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                  required
+                  min="18"
                 />
               </div>
 
@@ -346,18 +388,16 @@ export default function CompleteOwnerProfile() {
                       {isSignedIn ? 'Saving...' : 'Verifying...'}
                     </>
                   ) : (
-                    isSignedIn ? 'Complete Profile' : 'Continue to Verification'
+                    isSignedIn ? 'Save Changes' : 'Continue to Verification'
                   )}
                 </Button>
-                {!isSignedIn && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push('/select-role')}
-                  >
-                    Cancel
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push(isSignedIn ? '/profile' : '/select-role')}
+                >
+                  Cancel
+                </Button>
               </div>
             </form>
           </CardContent>

@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, MapPin, Loader2, ArrowLeft } from 'lucide-react';
 import { uploadImageClient } from '@/lib/imagekit-client';
@@ -22,7 +24,7 @@ export default function CompleteDriverProfile() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const isVerified = searchParams.get('verified') === 'true';
-  
+
   // Load pending profile data if user just verified
   const [formData, setFormData] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -36,6 +38,11 @@ export default function CompleteDriverProfile() {
           photo: data.photo || '',
           location: data.location || '',
           address: data.address || '',
+          gender: data.gender || 'male',
+          age: data.age || '',
+          experience: data.experience || '',
+          vehicleType: data.vehicleType || 'car',
+          otherVehicleType: data.otherVehicleType || '',
         };
       }
     }
@@ -46,6 +53,11 @@ export default function CompleteDriverProfile() {
       photo: '',
       location: '',
       address: '',
+      gender: 'male',
+      age: '',
+      experience: '',
+      vehicleType: 'car',
+      otherVehicleType: '',
     };
   });
   const [locationPermission, setLocationPermission] = useState(false);
@@ -113,7 +125,7 @@ export default function CompleteDriverProfile() {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
           const data = await response.json();
-          
+
           if (data.display_name) {
             const location = data.display_name.split(',').slice(0, 3).join(',');
             setFormData({ ...formData, location: `${latitude}, ${longitude}`, address: location });
@@ -165,6 +177,11 @@ export default function CompleteDriverProfile() {
         profilePhoto: profileData.photo,
         homeAddress: profileData.address,
         location: profileData.location,
+        gender: profileData.gender,
+        age: profileData.age,
+        experience: profileData.experience,
+        vehicleType: profileData.vehicleType,
+        otherVehicleType: profileData.otherVehicleType,
         profileCompleted: true,
       };
 
@@ -178,7 +195,7 @@ export default function CompleteDriverProfile() {
         description: 'Your driver profile has been created successfully',
       });
 
-      router.push('/');
+      router.push('/profile');
     } catch (error) {
       toast({
         title: 'Error',
@@ -192,7 +209,7 @@ export default function CompleteDriverProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.phone || !formData.address) {
       toast({
         title: 'Missing information',
@@ -217,6 +234,11 @@ export default function CompleteDriverProfile() {
           profilePhoto: formData.photo,
           homeAddress: formData.address,
           location: formData.location,
+          gender: formData.gender,
+          age: formData.age,
+          experience: formData.experience,
+          vehicleType: formData.vehicleType,
+          otherVehicleType: formData.otherVehicleType,
           profileCompleted: true,
         };
 
@@ -227,7 +249,7 @@ export default function CompleteDriverProfile() {
           description: 'Your driver profile has been created successfully',
         });
 
-        router.push('/');
+        router.push('/profile');
       } catch (error) {
         toast({
           title: 'Error',
@@ -248,6 +270,11 @@ export default function CompleteDriverProfile() {
       photo: formData.photo,
       address: formData.address,
       location: formData.location,
+      gender: formData.gender,
+      age: formData.age,
+      experience: formData.experience,
+      vehicleType: formData.vehicleType,
+      otherVehicleType: formData.otherVehicleType,
       role: 'driver',
     };
 
@@ -274,7 +301,7 @@ export default function CompleteDriverProfile() {
           <CardHeader>
             <CardTitle>Complete Your Driver Profile</CardTitle>
             <CardDescription>
-              {isSignedIn 
+              {isSignedIn
                 ? 'Please provide the following information to complete your driver profile'
                 : 'Fill in your details below. You will be asked to verify your identity with Google after submitting.'}
             </CardDescription>
@@ -320,6 +347,87 @@ export default function CompleteDriverProfile() {
                   required
                 />
               </div>
+
+              {/* Gender */}
+              <div className="space-y-2">
+                <Label>Gender *</Label>
+                <RadioGroup
+                  value={formData.gender}
+                  onValueChange={(value) => setFormData({ ...formData, gender: value })}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="male" id="male" />
+                    <Label htmlFor="male">Male</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="female" id="female" />
+                    <Label htmlFor="female">Female</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="other" id="other" />
+                    <Label htmlFor="other">Other</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Age */}
+              <div className="space-y-2">
+                <Label htmlFor="age">Age *</Label>
+                <Input
+                  id="age"
+                  type="number"
+                  value={formData.age}
+                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                  required
+                  min="18"
+                />
+              </div>
+
+              {/* Experience */}
+              <div className="space-y-2">
+                <Label htmlFor="experience">Driving Experience (Years) *</Label>
+                <Input
+                  id="experience"
+                  type="number"
+                  value={formData.experience}
+                  onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                  required
+                  min="0"
+                />
+              </div>
+
+              {/* Vehicle Type */}
+              <div className="space-y-2">
+                <Label htmlFor="vehicleType">Vehicle Type *</Label>
+                <Select
+                  value={formData.vehicleType}
+                  onValueChange={(value) => setFormData({ ...formData, vehicleType: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select vehicle type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="car">Car</SelectItem>
+                    <SelectItem value="bike">Bike</SelectItem>
+                    <SelectItem value="auto">Auto Rickshaw</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Other Vehicle Type */}
+              {formData.vehicleType === 'other' && (
+                <div className="space-y-2">
+                  <Label htmlFor="otherVehicleType">Specify Vehicle Type *</Label>
+                  <Input
+                    id="otherVehicleType"
+                    value={formData.otherVehicleType}
+                    onChange={(e) => setFormData({ ...formData, otherVehicleType: e.target.value })}
+                    required
+                  />
+                </div>
+              )}
 
 
               {/* Phone */}
@@ -376,18 +484,16 @@ export default function CompleteDriverProfile() {
                       {isSignedIn ? 'Saving...' : 'Verifying...'}
                     </>
                   ) : (
-                    isSignedIn ? 'Complete Profile' : 'Continue to Verification'
+                    isSignedIn ? 'Save Changes' : 'Continue to Verification'
                   )}
                 </Button>
-                {!isSignedIn && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push('/select-role')}
-                  >
-                    Cancel
-                  </Button>
-                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push(isSignedIn ? '/profile' : '/select-role')}
+                >
+                  Cancel
+                </Button>
               </div>
             </form>
           </CardContent>
