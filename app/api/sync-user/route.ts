@@ -1,26 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
 import { databases, DATABASE_ID, DRIVERS_COLLECTION_ID, OWNERS_COLLECTION_ID, ID, Query, isAppwriteConfigured } from '@/lib/appwrite';
 
 export async function POST(request: NextRequest) {
   try {
     // Check if Appwrite is configured
     if (!isAppwriteConfigured()) {
-      return NextResponse.json({ 
-        success: true, 
+      return NextResponse.json({
+        success: true,
         message: 'Appwrite not configured, using localStorage',
-        usingLocalStorage: true 
+        usingLocalStorage: true
       });
-    }
-
-    const { userId } = getAuth(request);
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
     const { role, profileData } = body;
+
+    if (!profileData?.userId) {
+      return NextResponse.json({ error: 'Missing userId in profile data' }, { status: 400 });
+    }
 
     if (!role || !profileData) {
       return NextResponse.json({ error: 'Missing role or profile data' }, { status: 400 });
@@ -29,10 +26,10 @@ export async function POST(request: NextRequest) {
     const collectionId = role === 'driver' ? DRIVERS_COLLECTION_ID : OWNERS_COLLECTION_ID;
 
     if (!collectionId) {
-      return NextResponse.json({ 
-        success: true, 
+      return NextResponse.json({
+        success: true,
         message: 'Collection not configured, using localStorage',
-        usingLocalStorage: true 
+        usingLocalStorage: true
       });
     }
 
@@ -41,7 +38,7 @@ export async function POST(request: NextRequest) {
       const existingUsers = await databases.listDocuments(
         DATABASE_ID,
         collectionId,
-        [Query.equal('clerkUserId', userId)]
+        [Query.equal('userId', profileData.userId)]
       );
 
       if (existingUsers.documents.length > 0) {
@@ -64,7 +61,7 @@ export async function POST(request: NextRequest) {
           collectionId,
           ID.unique(),
           {
-            clerkUserId: userId,
+            userId: profileData.userId,
             role: role,
             ...profileData,
             createdAt: new Date().toISOString(),
@@ -76,21 +73,21 @@ export async function POST(request: NextRequest) {
     } catch (appwriteError: any) {
       console.error('Appwrite error:', appwriteError);
       // Return success anyway, localStorage will be used
-      return NextResponse.json({ 
-        success: true, 
+      return NextResponse.json({
+        success: true,
         message: 'Appwrite error, using localStorage',
         usingLocalStorage: true,
-        error: appwriteError.message 
+        error: appwriteError.message
       });
     }
   } catch (error: any) {
     console.error('Sync error:', error);
     // Don't fail completely, localStorage will be used
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Sync failed, using localStorage',
       usingLocalStorage: true,
-      error: error.message 
+      error: error.message
     });
   }
 }

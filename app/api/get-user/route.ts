@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
 import { databases, DATABASE_ID, DRIVERS_COLLECTION_ID, OWNERS_COLLECTION_ID, Query, isAppwriteConfigured } from '@/lib/appwrite';
 
 export async function GET(request: NextRequest) {
@@ -9,9 +8,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(null);
     }
 
-    const { userId } = getAuth(request);
     const searchParams = request.nextUrl.searchParams;
-    const requestedUserId = searchParams.get('userId') || userId;
+    const requestedUserId = searchParams.get('userId');
     const role = searchParams.get('role') as 'driver' | 'owner';
 
     if (!requestedUserId || !role) {
@@ -28,7 +26,7 @@ export async function GET(request: NextRequest) {
       const result = await databases.listDocuments(
         DATABASE_ID,
         collectionId,
-        [Query.equal('clerkUserId', requestedUserId)]
+        [Query.equal('userId', requestedUserId)]
       );
 
       if (result.documents.length > 0) {

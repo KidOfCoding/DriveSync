@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useUser, useAuth } from '@clerk/nextjs';
+import { useAuth } from '@/components/auth/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,8 +14,8 @@ import { uploadImageClient } from '@/lib/imagekit-client';
 import { saveProfile } from '@/lib/storage';
 
 export default function CompleteDriverProfile() {
-  const { user } = useUser();
-  const { isSignedIn } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const isSignedIn = !!user;
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -40,9 +40,9 @@ export default function CompleteDriverProfile() {
       }
     }
     return {
-      name: user?.fullName || '',
-      phone: user?.primaryPhoneNumber?.phoneNumber || '',
-      email: user?.primaryEmailAddress?.emailAddress || '',
+      name: user?.displayName || '',
+      phone: user?.phoneNumber || '',
+      email: user?.email || '',
       photo: '',
       location: '',
       address: '',
@@ -148,22 +148,16 @@ export default function CompleteDriverProfile() {
   };
 
   const handleSaveAfterVerification = async (profileData: any) => {
-    if (!user?.id) return;
+    if (!user?.uid) return;
 
     setLoading(true);
     try {
       // Save to Clerk metadata
-      await user.update({
-        unsafeMetadata: {
-          role: 'driver',
-          profileCompleted: true,
-          ...profileData,
-        },
-      });
+      // Clerk user.update removed - using Firebase
 
       // Save to Appwrite/localStorage
       const finalProfileData = {
-        clerkUserId: user.id,
+        userId: user.uid,
         role: 'driver' as const,
         name: profileData.name,
         phone: profileData.phone,
@@ -209,19 +203,13 @@ export default function CompleteDriverProfile() {
     }
 
     // If user is already signed in, save directly
-    if (isSignedIn && user?.id) {
+    if (isSignedIn && user?.uid) {
       setLoading(true);
       try {
-        await user.update({
-          unsafeMetadata: {
-            role: 'driver',
-            profileCompleted: true,
-            ...formData,
-          },
-        });
+        // Clerk user.update removed - using Firebase
 
         const profileData = {
-          clerkUserId: user.id,
+          userId: user.uid,
           role: 'driver' as const,
           name: formData.name,
           phone: formData.phone,

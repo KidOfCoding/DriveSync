@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useAuth, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
+import { useAuth } from '@/components/auth/auth-provider';
+import { UserMenu } from '@/components/auth/user-menu';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,8 +15,8 @@ import { MapPin, Navigation, Users, Clock, DollarSign, Car, Search, Star, Loader
 import Link from 'next/link';
 
 export default function Home() {
-  const { user, isLoaded } = useUser();
-  const { isSignedIn } = useAuth();
+  const { user, loading } = useAuth();
+  const isSignedIn = !!user;
   const router = useRouter();
   const { toast } = useToast();
   const [pickup, setPickup] = useState('');
@@ -33,14 +34,18 @@ export default function Home() {
 
   // Check if profile is completed on mount
   useEffect(() => {
-    if (isSignedIn && user && isLoaded) {
-      const profileCompleted = user.unsafeMetadata?.profileCompleted;
-      const role = user.unsafeMetadata?.role;
-      
+    if (isSignedIn && user && !loading) {
+      // const profileCompleted = user.unsafeMetadata?.profileCompleted; // Clerk specific
+      // const role = user.unsafeMetadata?.role; // Clerk specific
+
+      // For Firebase, we might check a user profile document in Firestore/Appwrite
+      // For now, we'll rely on localStorage for role if available, or skip
+      const role = localStorage.getItem('selectedRole');
+
       // Check if there's pending profile data to save
       const pendingProfile = localStorage.getItem('pendingProfile');
       if (pendingProfile) {
-        // User just verified with Clerk, now save the profile
+        // User just verified, now save the profile
         const profileData = JSON.parse(pendingProfile);
         // This will be handled by the profile completion page
         if (role === 'driver') {
@@ -50,16 +55,11 @@ export default function Home() {
         }
         return;
       }
-      
-      if (!profileCompleted && role) {
-        if (role === 'driver') {
-          router.push('/driver/complete-profile');
-        } else if (role === 'owner') {
-          router.push('/owner/complete-profile');
-        }
-      }
+
+      // Logic for redirecting to complete profile if needed can be added here
+      // based on fetching user profile from database
     }
-  }, [isSignedIn, user, isLoaded, router]);
+  }, [isSignedIn, user, loading, router]);
 
   const activeRides = [
     {
@@ -137,7 +137,7 @@ export default function Home() {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
           const data = await response.json();
-          
+
           if (data.display_name) {
             const location = data.display_name.split(',').slice(0, 3).join(',');
             if (field === 'pickup') {
@@ -254,7 +254,7 @@ export default function Home() {
     }, 1500);
   };
 
-  if (!isLoaded) {
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -278,22 +278,12 @@ export default function Home() {
           </nav>
           <div className="flex items-center gap-4">
             {isSignedIn ? (
-              <>
-                <Link href="/profile">
-                  <Avatar className="h-8 w-8 cursor-pointer">
-                    <AvatarImage src={user?.imageUrl} />
-                    <AvatarFallback>
-                      {user?.firstName?.charAt(0) || user?.emailAddresses[0]?.emailAddress?.charAt(0).toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-                <UserButton afterSignOutUrl="/" />
-              </>
+              <UserMenu />
             ) : (
               <>
-                <SignInButton mode="modal">
+                <Link href="/sign-in">
                   <Button variant="outline" size="sm">Sign In</Button>
-                </SignInButton>
+                </Link>
                 <Link href="/select-role">
                   <Button size="sm">Sign Up</Button>
                 </Link>
@@ -381,8 +371,8 @@ export default function Home() {
                     </Button>
                   </div>
                 </div>
-                <Button 
-                  className="w-full" 
+                <Button
+                  className="w-full"
                   size="lg"
                   onClick={handleSearchRides}
                   disabled={searching}
@@ -447,7 +437,7 @@ export default function Home() {
                           <span className="font-bold text-lg">{ride.price}</span>
                         </div>
                       </div>
-                      <Button 
+                      <Button
                         className="w-full mt-2"
                         onClick={() => handleBookRide(ride.id)}
                       >
@@ -513,12 +503,12 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex gap-4">
-                  <SignInButton mode="modal">
-                    <Button className="flex-1">Sign In</Button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <Button variant="outline" className="flex-1">Sign Up</Button>
-                  </SignUpButton>
+                  <Link href="/sign-in" className="flex-1">
+                    <Button className="w-full">Sign In</Button>
+                  </Link>
+                  <Link href="/select-role" className="flex-1">
+                    <Button variant="outline" className="w-full">Sign Up</Button>
+                  </Link>
                 </CardContent>
               </Card>
             ) : (
@@ -539,11 +529,11 @@ export default function Home() {
                         <MapPin className="h-4 w-4 text-primary" />
                         Starting Point
                       </label>
-                      <Input 
-                        placeholder="Enter your starting location" 
+                      <Input
+                        placeholder="Enter your starting location"
                         value={rideForm.start}
                         onChange={(e) => setRideForm({ ...rideForm, start: e.target.value })}
-                        className="w-full" 
+                        className="w-full"
                       />
                     </div>
                     <div className="space-y-2">
@@ -551,11 +541,11 @@ export default function Home() {
                         <Navigation className="h-4 w-4 text-primary" />
                         Destination
                       </label>
-                      <Input 
-                        placeholder="Enter your destination" 
+                      <Input
+                        placeholder="Enter your destination"
                         value={rideForm.end}
                         onChange={(e) => setRideForm({ ...rideForm, end: e.target.value })}
-                        className="w-full" 
+                        className="w-full"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -564,11 +554,11 @@ export default function Home() {
                           <Clock className="h-4 w-4 text-primary" />
                           Departure Time
                         </label>
-                        <Input 
-                          type="time" 
+                        <Input
+                          type="time"
                           value={rideForm.time}
                           onChange={(e) => setRideForm({ ...rideForm, time: e.target.value })}
-                          className="w-full" 
+                          className="w-full"
                         />
                       </div>
                       <div className="space-y-2">
@@ -576,14 +566,14 @@ export default function Home() {
                           <Users className="h-4 w-4 text-primary" />
                           Available Seats
                         </label>
-                        <Input 
-                          type="number" 
-                          placeholder="2" 
-                          min="1" 
-                          max="8" 
+                        <Input
+                          type="number"
+                          placeholder="2"
+                          min="1"
+                          max="8"
                           value={rideForm.seats}
                           onChange={(e) => setRideForm({ ...rideForm, seats: e.target.value })}
-                          className="w-full" 
+                          className="w-full"
                         />
                       </div>
                     </div>
@@ -592,17 +582,17 @@ export default function Home() {
                         <DollarSign className="h-4 w-4 text-primary" />
                         Price per Seat
                       </label>
-                      <Input 
-                        type="number" 
-                        placeholder="15.00" 
-                        step="0.01" 
+                      <Input
+                        type="number"
+                        placeholder="15.00"
+                        step="0.01"
                         value={rideForm.price}
                         onChange={(e) => setRideForm({ ...rideForm, price: e.target.value })}
-                        className="w-full" 
+                        className="w-full"
                       />
                     </div>
-                    <Button 
-                      className="w-full" 
+                    <Button
+                      className="w-full"
                       size="lg"
                       onClick={handlePostRide}
                       disabled={postingRide}

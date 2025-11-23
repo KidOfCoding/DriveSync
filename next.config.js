@@ -11,10 +11,6 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.imagekit.io',
       },
-      {
-        protocol: 'https',
-        hostname: 'img.clerk.com',
-      },
     ],
   },
 };

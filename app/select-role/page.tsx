@@ -37,7 +37,7 @@ export default function SelectRolePage() {
               <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
                 <Car className="h-8 w-8 text-primary" />
               </div>
-              <CardTitle className="text-2xl">I'm a Driver</CardTitle>
+              <CardTitle className="text-2xl">I&apos;m a Driver</CardTitle>
               <CardDescription>
                 Offer rides and earn money by sharing your journey
               </CardDescription>
@@ -54,7 +54,7 @@ export default function SelectRolePage() {
               <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
                 <Building2 className="h-8 w-8 text-primary" />
               </div>
-              <CardTitle className="text-2xl">I'm an Owner</CardTitle>
+              <CardTitle className="text-2xl">I&apos;m an Owner</CardTitle>
               <CardDescription>
                 Manage your business and connect with drivers
               </CardDescription>

@@ -3,16 +3,18 @@
 // Simple storage utility with Appwrite sync and localStorage fallback
 
 export interface UserProfile {
-  clerkUserId: string;
+  userId: string;
   role: 'driver' | 'owner';
   name: string;
   phone: string;
   email?: string;
   profilePhoto?: string;
   profileCompleted: boolean;
+  gender?: 'male' | 'female' | 'other';
   // Driver specific
   homeAddress?: string;
   location?: string;
+  experience?: string; // Years of driving experience
   // Owner specific
   businessName?: string;
   businessAddress?: string;
@@ -70,11 +72,11 @@ export async function syncToAppwrite(profile: UserProfile): Promise<boolean> {
 // Save profile (tries Appwrite first, falls back to localStorage)
 export async function saveProfile(profile: UserProfile): Promise<boolean> {
   // Always save to localStorage first (for immediate access)
-  saveToLocalStorage(profile.clerkUserId, profile);
+  saveToLocalStorage(profile.userId, profile);
 
   // Try to sync to Appwrite (if configured)
   const appwriteSuccess = await syncToAppwrite(profile);
-  
+
   if (!appwriteSuccess) {
     console.log('Appwrite sync failed, using localStorage only');
   }
