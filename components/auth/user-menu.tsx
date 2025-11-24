@@ -13,9 +13,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/components/auth/auth-provider"
 import { User, LogOut, Settings } from "lucide-react"
 import Link from "next/link"
+import { useLanguage } from "@/components/language-provider"
 
 export function UserMenu() {
     const { user, logout } = useAuth();
+    const { t } = useLanguage();
     const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
     useEffect(() => {
@@ -55,24 +57,24 @@ export function UserMenu() {
                 </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('userMenu.myAccount')}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                     <Link href="/profile" className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" />
-                        Profile
+                        {t('userMenu.profile')}
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                     <Link href="/settings" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
-                        Settings
+                        {t('userMenu.settings')}
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => logout()} className="cursor-pointer text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Log out
+                    {t('userMenu.logout')}
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

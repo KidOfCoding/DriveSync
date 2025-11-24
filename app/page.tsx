@@ -12,14 +12,17 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { MapPin, Navigation, Users, Clock, DollarSign, Car, Search, Star, Loader2, MapPinned } from 'lucide-react';
+import { MapPin, Navigation, Users, Clock, IndianRupee, Car, Search, Star, Loader2, MapPinned } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/components/language-provider';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 export default function Home() {
   const { user, loading } = useAuth();
   const isSignedIn = !!user;
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [pickup, setPickup] = useState('');
   const [destination, setDestination] = useState('');
   const [activeTab, setActiveTab] = useState('rider');
@@ -65,65 +68,65 @@ export default function Home() {
   const activeRides = [
     {
       id: 1,
-      driver: 'John Doe',
-      from: 'Downtown Station',
-      to: 'Airport Terminal',
+      driver: t('data.drivers.rahul'),
+      from: t('data.locations.downtown'),
+      to: t('data.locations.airport'),
       time: '2:30 PM',
-      price: '$15.50',
+      price: '₹450',
       seats: 2,
       rating: 4.8,
-      avatar: 'JD'
+      avatar: 'RS'
     },
     {
       id: 2,
-      driver: 'Sarah Smith',
-      from: 'City Center',
-      to: 'University Campus',
+      driver: t('data.drivers.priya'),
+      from: t('data.locations.cityCenter'),
+      to: t('data.locations.university'),
       time: '3:15 PM',
-      price: '$12.00',
+      price: '₹350',
       seats: 3,
       rating: 4.9,
-      avatar: 'SS'
+      avatar: 'PP'
     },
     {
       id: 3,
-      driver: 'Mike Johnson',
-      from: 'Shopping Mall',
-      to: 'Beach Park',
+      driver: t('data.drivers.amit'),
+      from: t('data.locations.mall'),
+      to: t('data.locations.beach'),
       time: '4:00 PM',
-      price: '$18.75',
+      price: '₹550',
       seats: 1,
       rating: 4.7,
-      avatar: 'MJ'
+      avatar: 'AK'
     }
   ];
 
   const myRides = [
     {
       id: 1,
-      type: 'Upcoming',
-      from: 'My Location',
-      to: 'Coffee Shop',
+      type: t('rider.upcoming'),
+      from: t('data.locations.myLocation'),
+      to: t('data.locations.coffeeShop'),
       time: '5:00 PM',
-      price: '$8.50',
-      status: 'confirmed'
+      price: '₹250',
+      status: t('data.status.confirmed')
     },
     {
       id: 2,
-      type: 'Completed',
-      from: 'Home',
-      to: 'Office',
+      type: t('rider.completed'),
+      from: t('data.locations.home'),
+      to: t('data.locations.office'),
       time: '9:00 AM',
-      price: '$10.00',
-      status: 'completed'
+      price: '₹300',
+      status: t('data.status.completed')
     }
   ];
 
   const getCurrentLocation = (field: 'pickup' | 'destination') => {
     if (!navigator.geolocation) {
       toast({
-        title: 'Geolocation not supported',
-        description: 'Your browser does not support geolocation',
+        title: t('messages.geoNotSupported'),
+        description: t('messages.geoNotSupportedDesc'),
         variant: 'destructive',
       });
       return;
@@ -147,8 +150,8 @@ export default function Home() {
               setDestination(location);
             }
             toast({
-              title: 'Location fetched',
-              description: 'Your location has been retrieved',
+              title: t('messages.locationFetched'),
+              description: t('messages.locationFetchedDesc'),
             });
           }
         } catch (error) {
@@ -160,15 +163,15 @@ export default function Home() {
             setDestination(location);
           }
           toast({
-            title: 'Location fetched',
-            description: 'Coordinates retrieved',
+            title: t('messages.locationFetched'),
+            description: t('messages.locationFetchedDesc'),
           });
         }
       },
       (error) => {
         toast({
-          title: 'Location access denied',
-          description: 'Please allow location access or enter manually',
+          title: t('messages.locationDenied'),
+          description: t('messages.locationDeniedDesc'),
           variant: 'destructive',
         });
       }
@@ -178,8 +181,8 @@ export default function Home() {
   const handleSearchRides = () => {
     if (!pickup || !destination) {
       toast({
-        title: 'Missing information',
-        description: 'Please enter both pickup and destination',
+        title: t('messages.missingInfo'),
+        description: t('messages.enterBoth'),
         variant: 'destructive',
       });
       return;
@@ -187,8 +190,8 @@ export default function Home() {
 
     if (!isSignedIn) {
       toast({
-        title: 'Sign in required',
-        description: 'Please sign in to search for rides',
+        title: t('messages.signInRequired'),
+        description: t('messages.signInToSearch'),
         variant: 'destructive',
       });
       router.push('/sign-in');
@@ -200,8 +203,8 @@ export default function Home() {
     setTimeout(() => {
       setSearching(false);
       toast({
-        title: 'Search complete',
-        description: `Found ${activeRides.length} rides from ${pickup} to ${destination}`,
+        title: t('messages.searchComplete'),
+        description: t('messages.foundRides', { count: activeRides.length, from: pickup, to: destination }),
       });
     }, 1500);
   };
@@ -209,8 +212,8 @@ export default function Home() {
   const handleBookRide = (rideId: number) => {
     if (!isSignedIn) {
       toast({
-        title: 'Sign in required',
-        description: 'Please sign in to book a ride',
+        title: t('messages.signInRequired'),
+        description: t('messages.signInToBook'),
         variant: 'destructive',
       });
       router.push('/sign-in');
@@ -218,16 +221,16 @@ export default function Home() {
     }
 
     toast({
-      title: 'Ride booked!',
-      description: 'Your ride has been booked successfully',
+      title: t('messages.rideBooked'),
+      description: t('messages.rideBookedDesc'),
     });
   };
 
   const handlePostRide = () => {
     if (!isSignedIn) {
       toast({
-        title: 'Sign in required',
-        description: 'Please sign in to post a ride',
+        title: t('messages.signInRequired'),
+        description: t('messages.signInToPost'),
         variant: 'destructive',
       });
       router.push('/sign-in');
@@ -236,8 +239,8 @@ export default function Home() {
 
     if (!rideForm.start || !rideForm.end || !rideForm.time || !rideForm.seats || !rideForm.price) {
       toast({
-        title: 'Missing information',
-        description: 'Please fill in all fields',
+        title: t('messages.missingInfo'),
+        description: t('messages.fillAllFields'),
         variant: 'destructive',
       });
       return;
@@ -248,8 +251,8 @@ export default function Home() {
     setTimeout(() => {
       setPostingRide(false);
       toast({
-        title: 'Ride posted!',
-        description: 'Your ride has been posted successfully',
+        title: t('messages.ridePosted'),
+        description: t('messages.ridePostedDesc'),
       });
       setRideForm({ start: '', end: '', time: '', seats: '', price: '' });
     }, 1500);
@@ -273,21 +276,22 @@ export default function Home() {
             <span className="text-xl font-bold">RideShare</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">Rides</Link>
-            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">Drivers</Link>
-            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">About</Link>
+            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">{t('nav.rides')}</Link>
+            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">{t('nav.drivers')}</Link>
+            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">{t('nav.about')}</Link>
           </nav>
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <ModeToggle />
             {isSignedIn ? (
               <UserMenu />
             ) : (
               <>
                 <Link href="/sign-in">
-                  <Button variant="outline" size="sm">Sign In</Button>
+                  <Button variant="outline" size="sm">{t('nav.signIn')}</Button>
                 </Link>
                 <Link href="/select-role">
-                  <Button size="sm">Sign Up</Button>
+                  <Button size="sm">{t('nav.signUp')}</Button>
                 </Link>
               </>
             )}
@@ -299,18 +303,18 @@ export default function Home() {
         {/* Hero Section */}
         <div className="mb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Share Rides, Save Money
+            {t('hero.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Connect with drivers and passengers going your way. Real-time ride sharing made simple.
+            {t('hero.subtitle')}
           </p>
         </div>
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
-            <TabsTrigger value="rider">Find a Ride</TabsTrigger>
-            <TabsTrigger value="driver">Offer a Ride</TabsTrigger>
+            <TabsTrigger value="rider">{t('tabs.findRide')}</TabsTrigger>
+            <TabsTrigger value="driver">{t('tabs.offerRide')}</TabsTrigger>
           </TabsList>
 
           {/* Rider Tab */}
@@ -320,21 +324,21 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Search className="h-5 w-5" />
-                  Book Your Ride
+                  {t('rider.bookTitle')}
                 </CardTitle>
                 <CardDescription>
-                  Enter your pickup and destination to find available rides
+                  {t('rider.bookDesc')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
-                    Pickup Location
+                    {t('rider.pickup')}
                   </label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Enter pickup address"
+                      placeholder={t('rider.pickupPlaceholder')}
                       value={pickup}
                       onChange={(e) => setPickup(e.target.value)}
                       className="flex-1"
@@ -353,11 +357,11 @@ export default function Home() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
                     <Navigation className="h-4 w-4 text-primary" />
-                    Destination
+                    {t('rider.destination')}
                   </label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Enter destination address"
+                      placeholder={t('rider.destinationPlaceholder')}
                       value={destination}
                       onChange={(e) => setDestination(e.target.value)}
                       className="flex-1"
@@ -382,12 +386,12 @@ export default function Home() {
                   {searching ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Searching...
+                      {t('rider.searching')}
                     </>
                   ) : (
                     <>
                       <Search className="mr-2 h-4 w-4" />
-                      Search Rides
+                      {t('rider.searchButton')}
                     </>
                   )}
                 </Button>
@@ -396,7 +400,7 @@ export default function Home() {
 
             {/* Available Rides */}
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl font-semibold mb-4">Available Rides</h2>
+              <h2 className="text-2xl font-semibold mb-4">{t('rider.availableRides')}</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {activeRides.map((ride) => (
                   <Card key={ride.id} className="hover:shadow-lg transition-shadow">
@@ -415,7 +419,7 @@ export default function Home() {
                             </div>
                           </div>
                         </div>
-                        <Badge variant="secondary">{ride.seats} seats</Badge>
+                        <Badge variant="secondary">{ride.seats} {t('rider.seats')}</Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -435,7 +439,7 @@ export default function Home() {
                           <span>{ride.time}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4 text-primary" />
+                          {/* <IndianRupee className="h-4 w-4 text-primary" /> */}
                           <span className="font-bold text-lg">{ride.price}</span>
                         </div>
                       </div>
@@ -443,7 +447,7 @@ export default function Home() {
                         className="w-full mt-2"
                         onClick={() => handleBookRide(ride.id)}
                       >
-                        Book Ride
+                        {t('rider.bookButton')}
                       </Button>
                     </CardContent>
                   </Card>
@@ -455,8 +459,8 @@ export default function Home() {
             {isSignedIn && (
               <Card className="max-w-4xl mx-auto mt-8">
                 <CardHeader>
-                  <CardTitle>My Rides</CardTitle>
-                  <CardDescription>View your upcoming and past rides</CardDescription>
+                  <CardTitle>{t('rider.myRides')}</CardTitle>
+                  <CardDescription>{t('rider.myRidesDesc')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -464,7 +468,7 @@ export default function Home() {
                       <div key={ride.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Badge variant={ride.status === 'confirmed' ? 'default' : 'secondary'}>
+                            <Badge variant={ride.status === t('data.status.confirmed') ? 'default' : 'secondary'}>
                               {ride.type}
                             </Badge>
                           </div>
@@ -499,17 +503,17 @@ export default function Home() {
             {!isSignedIn ? (
               <Card className="max-w-2xl mx-auto">
                 <CardHeader>
-                  <CardTitle>Sign In Required</CardTitle>
+                  <CardTitle>{t('driver.signInRequired')}</CardTitle>
                   <CardDescription>
-                    Please sign in to post rides and manage your driver profile
+                    {t('driver.signInDesc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex gap-4">
                   <Link href="/sign-in" className="flex-1">
-                    <Button className="w-full">Sign In</Button>
+                    <Button className="w-full">{t('nav.signIn')}</Button>
                   </Link>
                   <Link href="/select-role" className="flex-1">
-                    <Button variant="outline" className="w-full">Sign Up</Button>
+                    <Button variant="outline" className="w-full">{t('nav.signUp')}</Button>
                   </Link>
                 </CardContent>
               </Card>
@@ -519,20 +523,20 @@ export default function Home() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Car className="h-5 w-5" />
-                      Offer a Ride
+                      {t('driver.offerTitle')}
                     </CardTitle>
                     <CardDescription>
-                      Share your ride and earn money by taking passengers along
+                      {t('driver.offerDesc')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-primary" />
-                        Starting Point
+                        {t('driver.startPoint')}
                       </label>
                       <Input
-                        placeholder="Enter your starting location"
+                        placeholder={t('driver.startPlaceholder')}
                         value={rideForm.start}
                         onChange={(e) => setRideForm({ ...rideForm, start: e.target.value })}
                         className="w-full"
@@ -541,10 +545,10 @@ export default function Home() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium flex items-center gap-2">
                         <Navigation className="h-4 w-4 text-primary" />
-                        Destination
+                        {t('driver.destination')}
                       </label>
                       <Input
-                        placeholder="Enter your destination"
+                        placeholder={t('driver.destinationPlaceholder')}
                         value={rideForm.end}
                         onChange={(e) => setRideForm({ ...rideForm, end: e.target.value })}
                         className="w-full"
@@ -554,7 +558,7 @@ export default function Home() {
                       <div className="space-y-2">
                         <label className="text-sm font-medium flex items-center gap-2">
                           <Clock className="h-4 w-4 text-primary" />
-                          Departure Time
+                          {t('driver.departureTime')}
                         </label>
                         <Input
                           type="time"
@@ -566,7 +570,7 @@ export default function Home() {
                       <div className="space-y-2">
                         <label className="text-sm font-medium flex items-center gap-2">
                           <Users className="h-4 w-4 text-primary" />
-                          Available Seats
+                          {t('driver.availableSeats')}
                         </label>
                         <Input
                           type="number"
@@ -581,13 +585,13 @@ export default function Home() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-primary" />
-                        Price per Seat
+                        <IndianRupee className="h-4 w-4 text-primary" />
+                        {t('driver.pricePerSeat')}
                       </label>
                       <Input
                         type="number"
-                        placeholder="15.00"
-                        step="0.01"
+                        placeholder="400"
+                        step="10"
                         value={rideForm.price}
                         onChange={(e) => setRideForm({ ...rideForm, price: e.target.value })}
                         className="w-full"
@@ -602,12 +606,12 @@ export default function Home() {
                       {postingRide ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Posting...
+                          {t('driver.posting')}
                         </>
                       ) : (
                         <>
                           <Car className="mr-2 h-4 w-4" />
-                          Post Ride
+                          {t('driver.postButton')}
                         </>
                       )}
                     </Button>
@@ -618,19 +622,19 @@ export default function Home() {
                 <div className="max-w-4xl mx-auto grid gap-4 md:grid-cols-3">
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardDescription>Total Rides</CardDescription>
+                      <CardDescription>{t('driver.stats.totalRides')}</CardDescription>
                       <CardTitle className="text-3xl">127</CardTitle>
                     </CardHeader>
                   </Card>
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardDescription>Earnings</CardDescription>
-                      <CardTitle className="text-3xl">$2,450</CardTitle>
+                      <CardDescription>{t('driver.stats.earnings')}</CardDescription>
+                      <CardTitle className="text-3xl">₹75,000</CardTitle>
                     </CardHeader>
                   </Card>
                   <Card>
                     <CardHeader className="pb-3">
-                      <CardDescription>Rating</CardDescription>
+                      <CardDescription>{t('driver.stats.rating')}</CardDescription>
                       <CardTitle className="text-3xl flex items-center gap-1">
                         4.9 <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                       </CardTitle>
@@ -652,9 +656,9 @@ export default function Home() {
               <span className="font-bold">RideShare</span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
-              <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
-              <Link href="#" className="hover:text-primary transition-colors">Terms</Link>
-              <Link href="#" className="hover:text-primary transition-colors">Contact</Link>
+              <Link href="#" className="hover:text-primary transition-colors">{t('footer.privacy')}</Link>
+              <Link href="#" className="hover:text-primary transition-colors">{t('footer.terms')}</Link>
+              <Link href="#" className="hover:text-primary transition-colors">{t('footer.contact')}</Link>
             </div>
           </div>
         </div>
